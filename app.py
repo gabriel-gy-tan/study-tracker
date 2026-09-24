@@ -49,6 +49,21 @@ def delete():
         connection.commit()
         connection.close()
         return redirect("/categories")
+
+@app.route("/goupdate", methods=["GET", "POST"])
+@login_required
+def goupdate():
+    if request.method == "POST":
+        id = request.form.get("id")
+        new_name = request.form.get("update")
+        connection = get_db_connection()
+        connection.execute("UPDATE categories SET category_name = ? WHERE id = ?", (new_name, id))
+        connection.commit()
+        connection.close()
+        return redirect("/categories")
+
+    category_id = request.args.get("id")
+    return render_template("goupdate.html", id=category_id)
     
 @app.route("/register", methods=["GET", "POST"])
 def register():

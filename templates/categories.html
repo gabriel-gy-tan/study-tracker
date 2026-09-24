@@ -27,10 +27,14 @@
                 </td>
                 <td>
                     <form action="/delete" method="post">
-                        
                         <input name="id" type="hidden" value='{{ category["id"] }}' >
                         <button class="btn btn-primary" type="submit">Delete</button>
-                    
+                    </form>
+                </td>
+                <td>
+                    <form action="/goupdate" method="get">
+                        <input name="id" type="hidden" value='{{ category["id"] }}' >
+                        <button class="btn btn-primary" type="submit">Update</button>
                     </form>
                 </td>
             </tr>
