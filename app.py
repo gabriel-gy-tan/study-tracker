@@ -25,6 +25,31 @@ app.secret_key = os.getenv("SECRET_KEY")
 def index():
     return render_template("index.html")
 
+@app.route("/categories", methods=["GET", "POST"])
+@login_required
+def categories():
+    if request.method == "POST":
+        category = request.form.get("category")
+        connection = get_db_connection()
+        connection.execute("INSERT INTO categories (user_id, category_name) VALUES (?, ?)", (session["user_id"], category))
+        connection.commit()
+        connection.close()
+
+    connection = get_db_connection()
+    categories = connection.execute("SELECT * FROM categories WHERE user_id = ?", (session["user_id"],)).fetchall()
+    return render_template("categories.html", categories = categories)
+
+@app.route("/delete", methods=["POST"])
+@login_required
+def delete():
+    if request.method == "POST":
+        id = request.form.get("id")
+        connection = get_db_connection()
+        connection.execute("DELETE FROM categories WHERE id = ?", (id,))
+        connection.commit()
+        connection.close()
+        return redirect("/categories")
+    
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
