@@ -1,19 +1,11 @@
-<!DOCTYPE html>
-<html lang="e">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "layout.html" %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+{% block title %}
+    Register
+{% endblock %}
 
-    <title>Study Tracker</title>
-    </head>
-    <body>
+{% block main %}
+    <h1>Study Tracker</h1>
 
-        <h1>Study Tracker</h1>
-
-        <p>My study tracker is working!</p>
-
-    </body>
-
-</html>
+    <p>My study tracker is working!</p>
+{% endblock %}
