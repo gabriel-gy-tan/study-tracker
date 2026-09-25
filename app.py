@@ -14,10 +14,22 @@ def get_db_connection():
     connection.row_factory = sqlite3.Row
     return connection
 
+def formatted_time(total_seconds):
+        hours = int(total_seconds/3600)
+        minutes = int((total_seconds % 3600)/60)
+        seconds = total_seconds % 60
+
+        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+
+
+
+
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
+app.jinja_env.filters["duration"] = formatted_time
 
 
 @app.route("/")
@@ -27,6 +39,62 @@ def index():
     categories = connection.execute("SELECT * FROM categories WHERE user_id = ?", (session["user_id"],)).fetchall()
     connection.close()
     return render_template("index.html", categories=categories)
+
+@app.route("/history", methods=["GET", "POST"])
+@login_required
+def history():
+    
+    connection = get_db_connection()
+    subject = connection.execute("SELECT sessions.id, sessions.user_id, category_name, duration, desc, created_at FROM sessions JOIN categories ON sessions.category_id = categories.id WHERE sessions.user_id = ? ORDER BY sessions.created_at DESC", (session["user_id"],)).fetchall()
+    connection.close()
+    return render_template("history.html", subjects=subject)
+
+@app.route("/delete-session", methods=["POST"])
+@login_required
+def delete_session():
+    if request.method == "POST":
+        id = request.form.get("id")
+        connection = get_db_connection()
+        connection.execute("DELETE FROM sessions WHERE id = ?", (id,))
+        connection.commit()
+        connection.close()
+        return redirect("/history")
+    
+@app.route("/desc", methods=["GET", "POST"])
+@login_required
+def desc():
+    if request.method == "POST":
+        desc = request.form.get("description")
+        connection = get_db_connection()
+        connection.execute("INSERT INTO sessions (user_id, category_id, duration, desc) VALUES (?, ?, ?, ?)", (session["user_id"], session["selected_category"], session["finish_duration"], desc))
+        connection.commit()
+        connection.close()
+        return redirect("/")
+
+@app.route("/finish", methods=["GET", "POST"])
+@login_required
+def finish():
+    if request.method == "POST":
+        data = request.get_json()
+        duration = data["duration"]
+    
+        
+        if duration is None:
+            return {"success": False}
+        
+        session["finish_duration"] = duration
+        return {"success": True}
+
+    hours = int(session["finish_duration"]/3600)
+    minutes = int((session["finish_duration"] % 3600)/60)
+    seconds = session["finish_duration"] % 60
+
+    time = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+    
+    connection = get_db_connection()
+    subject = connection.execute("SELECT * FROM categories WHERE id = ? AND user_id = ?", (session["selected_category"], session["user_id"])).fetchone()
+    connection.close()
+    return render_template("finish.html", final_time = time, subject = subject)
 
 @app.route("/select-category", methods=["GET", "POST"])
 @login_required
@@ -59,9 +127,9 @@ def categories():
     categories = connection.execute("SELECT * FROM categories WHERE user_id = ?", (session["user_id"],)).fetchall()
     return render_template("categories.html", categories = categories)
 
-@app.route("/delete", methods=["POST"])
+@app.route("/delete-category", methods=["POST"])
 @login_required
-def delete():
+def delete_category():
     if request.method == "POST":
         id = request.form.get("id")
         connection = get_db_connection()

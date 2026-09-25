@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block title %}
-    Log in
+    History
 {% endblock %}
 
 {% block main %}
@@ -26,7 +26,7 @@
                     
                 </td>
                 <td>
-                    <form action="/delete" method="post">
+                    <form action="/delete-categories" method="post">
                         <input name="id" type="hidden" value='{{ category["id"] }}' >
                         <button class="btn btn-primary" type="submit">Delete</button>
                     </form>
