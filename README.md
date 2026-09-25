@@ -1,4 +1,4 @@
-# study.Now()
+# study.Now() ~ CS50x Final Project
 #### Video Demo:  <URL HERE>
 #### Description:
 A simple study tracker web application that allows users to create studying categories and then start a timer to record their studying sessions. They can then choose to save their session or delete it and then view their saved sessions in the history tab. 
