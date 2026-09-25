@@ -7,5 +7,16 @@
 {% block main %}
     <h1>Study Tracker</h1>
 
-    <p>My study tracker is working!</p>
+    <select id="category">
+        <option value="" disabled selected>Choose Category</option>
+        {% for category in categories %}
+            <option value='{{category["id"]}}'>
+                {{ category["category_name"] }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <h2 id="timer">00:00:00</h2>
+
+    <script src="{{ url_for('static', filename='timer.js') }}"></script>
 {% endblock %}

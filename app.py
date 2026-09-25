@@ -23,7 +23,27 @@ app.secret_key = os.getenv("SECRET_KEY")
 @app.route("/")
 @login_required
 def index():
-    return render_template("index.html")
+    connection = get_db_connection()
+    categories = connection.execute("SELECT * FROM categories WHERE user_id = ?", (session["user_id"],)).fetchall()
+    connection.close()
+    return render_template("index.html", categories=categories)
+
+@app.route("/select-category", methods=["GET", "POST"])
+@login_required
+def select_category():
+    data = request.get_json()
+    category_id = data["category_id"]
+    user_id = session["user_id"]
+
+    connection = get_db_connection()
+    category = connection.execute("SELECT * FROM categories WHERE id = ? AND user_id = ?", (category_id, user_id)).fetchone()
+    connection.close()
+    
+    if category is None:
+        return {"success": False}
+    
+    session["selected_category"] = category_id
+    return {"success": True}
 
 @app.route("/categories", methods=["GET", "POST"])
 @login_required
